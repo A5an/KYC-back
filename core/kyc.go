@@ -1,0 +1,206 @@
+package core
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/gorilla/mux"
+
+	"github.com/Sinbad-HQ/kyc/core/components/kyc/models"
+)
+
+type CreateKycRequest struct {
+	FirstName  string `json:"first_name"`
+	MiddleName string `json:"middle_name"`
+	LastName   string `json:"last_name"`
+	DoB        string `json:"dob"`
+	Country    string `json:"country"`
+	Gender     string `json:"gender"`
+
+	// bvn country specific
+	BVN        string `json:"bvn"`
+	ProviderID string `json:"provider_id"`
+}
+
+// TODO: we need more generic validation for these different providers
+func (c CreateKycRequest) Validate() error {
+	bvnRequired := false
+	if strings.ToLower(c.Country) == "nigeria" {
+		bvnRequired = true
+	}
+
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.FirstName, validation.Required),
+		validation.Field(&c.LastName, validation.Required),
+		validation.Field(&c.DoB, validation.Required),
+		validation.Field(&c.Country, validation.Required),
+		validation.Field(&c.Gender, validation.Required),
+		validation.Field(&c.ProviderID, validation.Required),
+		validation.Field(&c.BVN, validation.By(func(value interface{}) error {
+			if bvnRequired && value.(string) == "" {
+				return errors.New("bvn is required for Nigeria")
+			}
+			return nil
+		})),
+	)
+}
+
+type UpdateKycRequest struct {
+	Status string `json:"status"`
+}
+
+func (u UpdateKycRequest) Validate() error {
+	return validation.ValidateStruct(&u,
+		validation.Field(&u.Status, validation.Required),
+	)
+}
+
+func (app *App) CreateKyc(w http.ResponseWriter, r *http.Request) {
+	reqBody := CreateKycRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to decode body: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	if err := reqBody.Validate(); err != nil {
+		app.HandleAPIError(
+			err, http.StatusBadRequest, w,
+		)
+		return
+	}
+
+	createdProduct, err := app.KycComponent.Create(r.Context(), &models.Kyc{
+		ID:         reqBody.BVN,
+		ProductID:  mux.Vars(r)["productID"],
+		ProviderID: reqBody.ProviderID,
+		FirstName:  reqBody.FirstName,
+		MiddleName: reqBody.MiddleName,
+		LastName:   reqBody.LastName,
+		DoB:        reqBody.DoB,
+		Country:    reqBody.Country,
+		Gender:     reqBody.Gender,
+	})
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to create kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(createdProduct); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+}
+
+func (app *App) GetKycByProduct(w http.ResponseWriter, r *http.Request) {
+	productID := mux.Vars(r)["productID"]
+	kyc, err := app.KycComponent.GetByProductID(r.Context(), productID)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to get kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(kyc); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+}
+
+func (app *App) GetKycByID(w http.ResponseWriter, r *http.Request) {
+	kycID := mux.Vars(r)["kycID"]
+	product, err := app.KycComponent.GetByID(r.Context(), kycID)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to get kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(product); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+}
+
+func (app *App) UpdateKycByID(w http.ResponseWriter, r *http.Request) {
+	reqBody := UpdateKycRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to decode body: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	if err := reqBody.Validate(); err != nil {
+		app.HandleAPIError(
+			err, http.StatusBadRequest, w,
+		)
+		return
+	}
+
+	err := app.KycComponent.UpdateStatusByID(r.Context(), mux.Vars(r)["kycID"], reqBody.Status)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to get kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return
+}
+
+func (app *App) CreditChekCallback(w http.ResponseWriter, r *http.Request) {
+	userInfo, _, err := app.CreditChek.GetUserInfoFromCallback(r)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to decode body: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	err = app.KycComponent.UpdateByID(r.Context(), &userInfo)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to update kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (app *App) OneBrickCallback(w http.ResponseWriter, r *http.Request) {
+	userInfo, _, err := app.OneBrick.GetUserInfoFromCallback(r)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("error while handling callback: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	err = app.KycComponent.UpdateByID(r.Context(), &userInfo)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to update kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
