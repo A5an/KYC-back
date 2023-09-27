@@ -54,6 +54,7 @@ func (app *App) CreateRiskParameter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(createdRiskParameter); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
@@ -71,6 +72,7 @@ func (app *App) GetRiskParameters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(riskParameters); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,

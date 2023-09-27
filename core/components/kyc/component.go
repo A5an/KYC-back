@@ -130,9 +130,11 @@ func (c *component) UpdateByID(ctx context.Context, userInfo *models.UserInfo) e
 		kyc.AverageSalaryRiskLevel = &LowRiskLevel
 	}
 
-	kyc.EmploymentRiskLevel = &HighRiskLevel
-	if userInfo.EmploymentStatus == riskParameter.EmploymentStatus {
-		kyc.EmploymentRiskLevel = &LowRiskLevel
+	kyc.EmploymentRiskLevel = &LowRiskLevel
+	if riskParameter.EmploymentStatus {
+		if !userInfo.EmploymentStatus {
+			kyc.EmploymentRiskLevel = &HighRiskLevel
+		}
 	}
 
 	kyc.IdentityResponse = userInfo.ProviderResponse

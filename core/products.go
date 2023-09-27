@@ -52,6 +52,7 @@ func (app *App) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(createdProduct); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
@@ -70,6 +71,7 @@ func (app *App) GetProductByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(product); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
@@ -87,6 +89,7 @@ func (app *App) GetProductsByProviderID(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(products); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,

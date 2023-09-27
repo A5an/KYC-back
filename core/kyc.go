@@ -93,6 +93,7 @@ func (app *App) CreateKyc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(createdProduct); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
@@ -111,6 +112,7 @@ func (app *App) GetKycByProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(kyc); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
@@ -129,6 +131,7 @@ func (app *App) GetKycByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(product); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
@@ -182,6 +185,7 @@ func (app *App) CreditChekCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -202,5 +206,6 @@ func (app *App) OneBrickCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
