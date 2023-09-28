@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 
+	"github.com/Sinbad-HQ/kyc/core/components/product"
 	"github.com/Sinbad-HQ/kyc/core/components/product/models"
 )
 
@@ -22,6 +24,20 @@ func (c CreateRiskParameterRequest) Validate() error {
 		validation.Field(&c.Country, validation.Required),
 		validation.Field(&c.AccountBalance, validation.Required),
 		validation.Field(&c.AverageSalary, validation.Required),
+		validation.Field(&c.Country, validation.By(func(value interface{}) error {
+			var isSupported bool
+			country := strings.ToLower(value.(string))
+			for _, supportedCountry := range product.SupportedCountries {
+				if country == supportedCountry {
+					isSupported = true
+				}
+			}
+
+			if !isSupported {
+				return fmt.Errorf("%s is not supported", country)
+			}
+			return nil
+		})),
 	)
 }
 
