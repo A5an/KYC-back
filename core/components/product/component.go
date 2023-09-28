@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -10,10 +11,14 @@ import (
 	"github.com/Sinbad-HQ/kyc/core/components/usersession"
 )
 
+var (
+	SupportedCountries = []string{"nigeria", "indonesia"}
+)
+
 type Component interface {
 	Create(ctx context.Context, product *models.Product) (*models.Product, error)
 	GetByProviderID(ctx context.Context) ([]models.Product, error)
-	GetByID(ctx context.Context, id string) (*models.Product, error)
+	GetByID(ctx context.Context, id string, providerID string) (*models.Product, error)
 
 	CreateRiskParameter(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error)
 	GetRiskParameters(ctx context.Context) ([]models.RiskParameter, error)
@@ -37,6 +42,13 @@ func (c *component) Create(ctx context.Context, product *models.Product) (*model
 	product.ID = uuid.NewString()
 	product.ProviderID = authCtx.ProviderID
 
+	for _, country := range SupportedCountries {
+		_, err := c.repo.GetRiskParameterByCountry(ctx, country)
+		if err != nil {
+			return nil, fmt.Errorf("please create: %s risk-parameter before creating product", country)
+		}
+	}
+
 	createdProduct, err := c.repo.Create(ctx, product)
 	if err != nil {
 		return nil, err
@@ -50,9 +62,9 @@ func (c *component) GetByProviderID(ctx context.Context) ([]models.Product, erro
 	return c.repo.GetByProviderID(ctx, authCtx.ProviderID)
 }
 
-func (c *component) GetByID(ctx context.Context, id string) (*models.Product, error) {
-	authCtx := c.userSessionComponent.GetAuthContextFromCtx(ctx)
-	return c.repo.GetByID(ctx, id, authCtx.ProviderID)
+func (c *component) GetByID(ctx context.Context, id string, providerID string) (*models.Product, error) {
+	//authCtx := c.userSessionComponent.GetAuthContextFromCtx(ctx)
+	return c.repo.GetByID(ctx, id, providerID)
 }
 
 func (c *component) CreateRiskParameter(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error) {

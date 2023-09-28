@@ -63,7 +63,8 @@ func (app *App) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) GetProductByID(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["productID"]
-	product, err := app.ProductComponent.GetByID(r.Context(), id)
+	authCtx := app.UserSessionComponent.GetAuthContextFromCtx(r.Context())
+	product, err := app.ProductComponent.GetByID(r.Context(), id, authCtx.ProviderID)
 	if err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to get provider: %w", err), http.StatusInternalServerError, w,

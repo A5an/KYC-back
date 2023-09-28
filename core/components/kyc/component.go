@@ -49,7 +49,7 @@ func NewComponent(repo Repo, productComponent product.Component, userSessionComp
 }
 
 func (c *component) Create(ctx context.Context, kyc *models.Kyc) (*models.Kyc, error) {
-	_, err := c.productComponent.GetByID(ctx, kyc.ProductID)
+	_, err := c.productComponent.GetByID(ctx, kyc.ProductID, kyc.ProviderID)
 	if err != nil {
 		return nil, err
 	}
