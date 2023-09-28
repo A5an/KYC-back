@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/gorilla/mux"
 
 	"github.com/Sinbad-HQ/kyc/core/components/product"
 	"github.com/Sinbad-HQ/kyc/core/components/product/models"
@@ -90,6 +91,45 @@ func (app *App) GetRiskParameters(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(riskParameters); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+}
+
+func (app *App) UpdateRiskParameter(w http.ResponseWriter, r *http.Request) {
+	reqBody := CreateRiskParameterRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to decode body: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	if err := reqBody.Validate(); err != nil {
+		app.HandleAPIError(
+			err, http.StatusBadRequest, w,
+		)
+		return
+	}
+
+	createdRiskParameter, err := app.ProductComponent.UpdateRiskParameterByID(r.Context(), &models.RiskParameter{
+		ID:               mux.Vars(r)["riskParameterID"],
+		Country:          reqBody.Country,
+		AccountBalance:   reqBody.AccountBalance,
+		AverageSalary:    reqBody.AverageSalary,
+		EmploymentStatus: reqBody.EmploymentStatus,
+	})
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to update risk parameter: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(createdRiskParameter); err != nil {
 		app.HandleAPIError(
 			fmt.Errorf("failed to encode response: %w", err), http.StatusInternalServerError, w,
 		)

@@ -18,6 +18,7 @@ type Repo interface {
 	CreateRiskParameter(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error)
 	GetRiskParameters(ctx context.Context, providerID string) ([]models.RiskParameter, error)
 	GetRiskParameterByCountry(ctx context.Context, country string) (*models.RiskParameter, error)
+	UpdateRiskParameterByID(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error)
 }
 
 const (
@@ -33,6 +34,12 @@ const (
 	selectRiskParameters = `SELECT * FROM risk_parameters WHERE provider_id = $1`
 
 	selectRiskParameterByName = "SELECT * FROM risk_parameters WHERE country = $1"
+	updateRiskParameterByID   = `UPDATE risk_parameters SET
+		country = :country,
+		account_balance = :account_balance,
+		average_salary = :average_salary,
+		employment_status = :employment_status
+        WHERE id = :id AND provider_id = :provider_id`
 )
 
 type repo struct {
@@ -44,6 +51,7 @@ type repo struct {
 	createRiskParameter       *sqlx.NamedStmt
 	selectRiskParameters      *sqlx.Stmt
 	selectRiskParameterByName *sqlx.Stmt
+	updateRiskParameterByID   *sqlx.NamedStmt
 }
 
 func NewRepo(db *sqlx.DB) (r *repo, err error) {
@@ -65,6 +73,9 @@ func NewRepo(db *sqlx.DB) (r *repo, err error) {
 		return
 	}
 	if r.selectRiskParameterByName, err = db.Preparex(selectRiskParameterByName); err != nil {
+		return
+	}
+	if r.updateRiskParameterByID, err = db.PrepareNamed(updateRiskParameterByID); err != nil {
 		return
 	}
 
@@ -121,4 +132,12 @@ func (r *repo) GetRiskParameterByCountry(_ context.Context, country string) (*mo
 		err = errors.New("risk parameter does not exist")
 	}
 	return &riskParameter, err
+}
+
+func (r *repo) UpdateRiskParameterByID(_ context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error) {
+	_, err := r.updateRiskParameterByID.Exec(riskParameter)
+	if err != nil {
+		return riskParameter, err
+	}
+	return riskParameter, nil
 }

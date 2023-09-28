@@ -23,6 +23,7 @@ type Component interface {
 	CreateRiskParameter(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error)
 	GetRiskParameters(ctx context.Context) ([]models.RiskParameter, error)
 	GetRiskParameterByCountry(ctx context.Context, country string) (*models.RiskParameter, error)
+	UpdateRiskParameterByID(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error)
 }
 
 type component struct {
@@ -82,4 +83,11 @@ func (c *component) GetRiskParameters(ctx context.Context) ([]models.RiskParamet
 
 func (c *component) GetRiskParameterByCountry(ctx context.Context, country string) (*models.RiskParameter, error) {
 	return c.repo.GetRiskParameterByCountry(ctx, country)
+}
+
+func (c *component) UpdateRiskParameterByID(ctx context.Context, riskParameter *models.RiskParameter) (*models.RiskParameter, error) {
+	authCtx := c.userSessionComponent.GetAuthContextFromCtx(ctx)
+	riskParameter.ProviderID = authCtx.ProviderID
+	riskParameter.Country = strings.ToLower(riskParameter.Country)
+	return c.repo.UpdateRiskParameterByID(ctx, riskParameter)
 }

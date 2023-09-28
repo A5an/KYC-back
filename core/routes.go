@@ -28,7 +28,8 @@ func (app *App) NewHandler() http.Handler {
 
 	// risk-parameters
 	r.HandleFunc("/risk-parameters", app.WithAuth(app.CreateRiskParameter)).Methods(http.MethodPost)
-	r.HandleFunc("/risk-parameters", app.WithAuth(app.GetRiskParameters)).Methods(http.MethodGet)
+	r.HandleFunc("/risk-parameters", app.WithAuth(app.CreateRiskParameter)).Methods(http.MethodPost)
+	r.HandleFunc("/risk-parameters/{riskParameterID}", app.WithAuth(app.UpdateRiskParameter)).Methods(http.MethodPut)
 
 	// kyc_submissions by provider callbacks
 	r.HandleFunc("/creditcheck/callback", app.CreditChekCallback).Methods(http.MethodPost)
