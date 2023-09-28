@@ -31,6 +31,7 @@ func (c CreateRiskParameterRequest) Validate() error {
 			for _, supportedCountry := range product.SupportedCountries {
 				if country == supportedCountry {
 					isSupported = true
+					break
 				}
 			}
 
