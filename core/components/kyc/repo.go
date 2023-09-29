@@ -35,10 +35,6 @@ VALUES(:id, :product_id, :provider_id, :first_name, :middle_name, :last_name, :d
         average_salary_risk_level = :average_salary_risk_level,
         employment_risk_level = :employment_risk_level
         WHERE id = :id AND provider_id = :provider_id`
-
-	PendingStatus  = "PENDING"
-	AprovedStatus  = "APPROVED"
-	RejectedStatus = "REJECTED"
 )
 
 type repo struct {

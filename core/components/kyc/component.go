@@ -13,6 +13,12 @@ import (
 	"github.com/Sinbad-HQ/kyc/core/components/usersession"
 )
 
+const (
+	PendingStatus  = "pending"
+	AprovedStatus  = "approved"
+	RejectedStatus = "rejected"
+)
+
 var (
 	LowRiskLevel  = "Low Risk"
 	HighRiskLevel = "High Risk"
@@ -94,7 +100,7 @@ func (c *component) UpdateStatusByID(ctx context.Context, kycID string, status s
 	if err != nil {
 		return err
 	}
-	kyc.Status = status
+	kyc.Status = strings.ToLower(status)
 
 	return c.repo.UpdateByID(ctx, kyc)
 }

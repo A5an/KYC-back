@@ -10,6 +10,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/gorilla/mux"
 
+	"github.com/Sinbad-HQ/kyc/core/components/kyc"
 	"github.com/Sinbad-HQ/kyc/core/components/kyc/models"
 )
 
@@ -54,8 +55,12 @@ type UpdateKycRequest struct {
 }
 
 func (u UpdateKycRequest) Validate() error {
+	u.Status = strings.ToLower(u.Status)
 	return validation.ValidateStruct(&u,
-		validation.Field(&u.Status, validation.Required),
+		validation.Field(&u.Status,
+			validation.Required,
+			validation.In(kyc.PendingStatus, kyc.AprovedStatus, kyc.RejectedStatus),
+		),
 	)
 }
 
