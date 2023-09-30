@@ -13,12 +13,16 @@ type Kyc struct {
 	ProviderID string  `json:"provider_id"`
 
 	// Embed personal details in the same table for prototype
-	FirstName  string `json:"first_name"`
-	MiddleName string `json:"middle_name"`
-	LastName   string `json:"last_name"`
-	DoB        string `json:"dob"`
-	Country    string `json:"country"`
-	Gender     string `json:"gender"`
+	FirstName   string `json:"first_name"`
+	MiddleName  string `json:"middle_name"`
+	LastName    string `json:"last_name"`
+	DoB         string `json:"dob"`
+	Country     string `json:"country"`
+	Gender      string `json:"gender"`
+	Nationality string `json:"nationality"`
+	Address     string `json:"address"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
 
 	// kyc metrics
 	AccountBalance   *float64 `json:"account_balance"` //last 3 months

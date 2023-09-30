@@ -15,12 +15,16 @@ import (
 )
 
 type CreateKycRequest struct {
-	FirstName  string `json:"first_name"`
-	MiddleName string `json:"middle_name"`
-	LastName   string `json:"last_name"`
-	DoB        string `json:"dob"`
-	Country    string `json:"country"`
-	Gender     string `json:"gender"`
+	FirstName   string `json:"first_name"`
+	MiddleName  string `json:"middle_name"`
+	LastName    string `json:"last_name"`
+	DoB         string `json:"dob"`
+	Country     string `json:"country"`
+	Gender      string `json:"gender"`
+	Nationality string `json:"nationality"`
+	Address     string `json:"address"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
 
 	// bvn country specific
 	BVN        string `json:"bvn"`
@@ -81,15 +85,19 @@ func (app *App) CreateKyc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	createdProduct, err := app.KycComponent.Create(r.Context(), &models.Kyc{
-		ID:         reqBody.BVN,
-		ProductID:  mux.Vars(r)["productID"],
-		ProviderID: reqBody.ProviderID,
-		FirstName:  reqBody.FirstName,
-		MiddleName: reqBody.MiddleName,
-		LastName:   reqBody.LastName,
-		DoB:        reqBody.DoB,
-		Country:    reqBody.Country,
-		Gender:     reqBody.Gender,
+		ID:          reqBody.BVN,
+		ProductID:   mux.Vars(r)["productID"],
+		ProviderID:  reqBody.ProviderID,
+		FirstName:   reqBody.FirstName,
+		MiddleName:  reqBody.MiddleName,
+		LastName:    reqBody.LastName,
+		DoB:         reqBody.DoB,
+		Country:     reqBody.Country,
+		Gender:      reqBody.Gender,
+		Nationality: reqBody.Nationality,
+		Email:       reqBody.Email,
+		PhoneNumber: reqBody.PhoneNumber,
+		Address:     reqBody.Address,
 	})
 	if err != nil {
 		app.HandleAPIError(
