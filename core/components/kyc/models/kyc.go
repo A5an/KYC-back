@@ -14,11 +14,8 @@ type Kyc struct {
 
 	// Embed personal details in the same table for prototype
 	FirstName   string `json:"first_name"`
-	MiddleName  string `json:"middle_name"`
 	LastName    string `json:"last_name"`
 	DoB         string `json:"dob"`
-	Country     string `json:"country"`
-	Gender      string `json:"gender"`
 	Nationality string `json:"nationality"`
 	Address     string `json:"address"`
 	Email       string `json:"email"`

@@ -64,15 +64,15 @@ func (c *component) Create(ctx context.Context, kyc *models.Kyc) (*models.Kyc, e
 	//kyc.ProviderID = authCtx.ProviderID
 	kyc.Status = PendingStatus
 
-	kyc.Country = strings.ToLower(kyc.Country)
+	kyc.Nationality = strings.ToLower(kyc.Nationality)
 	// hack: temporary for making things works before more design
-	if kyc.Country != "nigeria" {
+	if kyc.Nationality != "nigeria" {
 		kyc.ID = uuid.NewString()
 	}
 
-	provider, ok := c.providers[kyc.Country]
+	provider, ok := c.providers[kyc.Nationality]
 	if !ok {
-		return nil, fmt.Errorf("user verification from %s is not current supported", kyc.Country)
+		return nil, fmt.Errorf("user verification from %s is not current supported", kyc.Nationality)
 	}
 
 	link, err := provider.CreateLink(kyc.ID)
@@ -111,7 +111,7 @@ func (c *component) UpdateByID(ctx context.Context, userInfo *models.UserInfo) e
 		return err
 	}
 
-	riskParameter, err := c.productComponent.GetRiskParameterByCountry(ctx, kyc.Country)
+	riskParameter, err := c.productComponent.GetRiskParameterByCountry(ctx, kyc.Nationality)
 	if err != nil {
 		return err
 	}

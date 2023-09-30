@@ -16,11 +16,8 @@ import (
 
 type CreateKycRequest struct {
 	FirstName   string `json:"first_name"`
-	MiddleName  string `json:"middle_name"`
 	LastName    string `json:"last_name"`
 	DoB         string `json:"dob"`
-	Country     string `json:"country"`
-	Gender      string `json:"gender"`
 	Nationality string `json:"nationality"`
 	Address     string `json:"address"`
 	Email       string `json:"email"`
@@ -34,7 +31,7 @@ type CreateKycRequest struct {
 // TODO: we need more generic validation for these different providers
 func (c CreateKycRequest) Validate() error {
 	bvnRequired := false
-	if strings.ToLower(c.Country) == "nigeria" {
+	if strings.ToLower(c.Nationality) == "nigeria" {
 		bvnRequired = true
 	}
 
@@ -42,8 +39,10 @@ func (c CreateKycRequest) Validate() error {
 		validation.Field(&c.FirstName, validation.Required),
 		validation.Field(&c.LastName, validation.Required),
 		validation.Field(&c.DoB, validation.Required),
-		validation.Field(&c.Country, validation.Required),
-		validation.Field(&c.Gender, validation.Required),
+		validation.Field(&c.Nationality, validation.Required),
+		validation.Field(&c.Address, validation.Required),
+		validation.Field(&c.Email, validation.Required),
+		validation.Field(&c.PhoneNumber, validation.Required),
 		validation.Field(&c.ProviderID, validation.Required),
 		validation.Field(&c.BVN, validation.By(func(value interface{}) error {
 			if bvnRequired && value.(string) == "" {
@@ -89,11 +88,8 @@ func (app *App) CreateKyc(w http.ResponseWriter, r *http.Request) {
 		ProductID:   mux.Vars(r)["productID"],
 		ProviderID:  reqBody.ProviderID,
 		FirstName:   reqBody.FirstName,
-		MiddleName:  reqBody.MiddleName,
 		LastName:    reqBody.LastName,
 		DoB:         reqBody.DoB,
-		Country:     reqBody.Country,
-		Gender:      reqBody.Gender,
 		Nationality: reqBody.Nationality,
 		Email:       reqBody.Email,
 		PhoneNumber: reqBody.PhoneNumber,
