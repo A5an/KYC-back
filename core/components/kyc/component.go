@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	PendingStatus  = "pending"
+	QueStatus      = "que"
 	AprovedStatus  = "approved"
 	RejectedStatus = "rejected"
 )
@@ -62,7 +62,7 @@ func (c *component) Create(ctx context.Context, kyc *models.Kyc) (*models.Kyc, e
 
 	//authCtx := c.userSessionComponent.GetAuthContextFromCtx(ctx)
 	//kyc.ProviderID = authCtx.ProviderID
-	kyc.Status = PendingStatus
+	kyc.Status = QueStatus
 
 	kyc.Nationality = strings.ToLower(kyc.Nationality)
 	// hack: temporary for making things works before more design

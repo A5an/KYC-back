@@ -62,7 +62,7 @@ func (u UpdateKycRequest) Validate() error {
 	return validation.ValidateStruct(&u,
 		validation.Field(&u.Status,
 			validation.Required,
-			validation.In(kyc.PendingStatus, kyc.AprovedStatus, kyc.RejectedStatus),
+			validation.In(kyc.QueStatus, kyc.AprovedStatus, kyc.RejectedStatus),
 		),
 	)
 }
