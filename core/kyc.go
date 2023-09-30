@@ -17,7 +17,6 @@ import (
 type CreateKycRequest struct {
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
-	DoB         string `json:"dob"`
 	Nationality string `json:"nationality"`
 	Address     string `json:"address"`
 	Email       string `json:"email"`
@@ -38,7 +37,6 @@ func (c CreateKycRequest) Validate() error {
 	return validation.ValidateStruct(&c,
 		validation.Field(&c.FirstName, validation.Required),
 		validation.Field(&c.LastName, validation.Required),
-		validation.Field(&c.DoB, validation.Required),
 		validation.Field(&c.Nationality, validation.Required),
 		validation.Field(&c.Address, validation.Required),
 		validation.Field(&c.Email, validation.Required),
@@ -89,7 +87,6 @@ func (app *App) CreateKyc(w http.ResponseWriter, r *http.Request) {
 		ProviderID:  reqBody.ProviderID,
 		FirstName:   reqBody.FirstName,
 		LastName:    reqBody.LastName,
-		DoB:         reqBody.DoB,
 		Nationality: reqBody.Nationality,
 		Email:       reqBody.Email,
 		PhoneNumber: reqBody.PhoneNumber,
