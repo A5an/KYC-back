@@ -28,6 +28,8 @@ RETURNING id, product_id, provider_id, first_name, last_name,link, status, natio
 	selectByID                     = `SELECT * FROM products_kyc WHERE id = $1`
 	updateByID                     = `UPDATE products_kyc SET
 		status = :status,
+		bank_verification_number = :bank_verification_number,
+		id_type = :id_type,
 		account_balance = :account_balance,
 		average_salary = :average_salary,
 		employment_status = :employment_status,

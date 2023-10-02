@@ -144,5 +144,7 @@ func (c *component) UpdateByID(ctx context.Context, userInfo *models.UserInfo) e
 	}
 
 	kyc.IdentityResponse = userInfo.ProviderResponse
+	kyc.IDType = &userInfo.IDType
+	kyc.BankVerificationNumber = &userInfo.BankAccountNumber
 	return c.repo.UpdateByID(ctx, kyc)
 }

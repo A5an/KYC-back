@@ -201,6 +201,7 @@ func (c *OneBrickClient) GetUserInfoFromCallback(req *http.Request) (models.User
 	}
 
 	var (
+		bankAccount     string
 		accountBalance  float64
 		kycID           = resp[0].UserID
 		userAccessToken = resp[0].AccessToken
@@ -214,6 +215,7 @@ func (c *OneBrickClient) GetUserInfoFromCallback(req *http.Request) (models.User
 
 	if len(accountInfo.Data) > 0 {
 		accountBalance = accountInfo.Data[0].Balances.Current
+		bankAccount = accountInfo.Data[0].AccountNumber
 	}
 
 	averageSalary, err := c.getUserAverageSalary(userAccessToken)
@@ -223,9 +225,11 @@ func (c *OneBrickClient) GetUserInfoFromCallback(req *http.Request) (models.User
 	}
 
 	return models.UserInfo{
-		AccountBalance:   accountBalance,
-		AverageSalary:    math.Round(averageSalary*100) / 100,
-		EmploymentStatus: averageSalary > 0,
-		KycID:            kycID,
+		BankAccountNumber: bankAccount,
+		AccountBalance:    accountBalance,
+		AverageSalary:     math.Round(averageSalary*100) / 100,
+		EmploymentStatus:  averageSalary > 0,
+		IDType:            kycID,
+		KycID:             kycID,
 	}, nil, nil
 }

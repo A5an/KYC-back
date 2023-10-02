@@ -183,6 +183,12 @@ func (app *App) CreditChekCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// return ok status for events we do not handle
+	if userInfo.KycID == "" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	err = app.KycComponent.UpdateByID(r.Context(), &userInfo)
 	if err != nil {
 		app.HandleAPIError(
