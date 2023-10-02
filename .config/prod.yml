@@ -16,3 +16,7 @@ onebrick:
   client-id: 5500802e-196c-4f32-92a0-d28ceaf99a19
   client-secret: BUChl8HXmNoqKq5B8ukvv0zu23ulvy
   redirect-url: "https://kyc-b6dd115716ab.herokuapp.com/onebrick/callback"
+
+creditcheck:
+  base-url: https://api.creditchek.africa/v1
+  public_key: "JCVJ2sQzscrc76v9v6GDXc237HO1EDycroZiyUfMW7qw+a3/DU16JoCdcky0S9Sm"

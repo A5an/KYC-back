@@ -71,7 +71,8 @@ func NewApp() (app *App, err error) {
 		oneBrickConfig.ClientSecret,
 	)
 
-	app.CreditChek = providers.NewCreditChekClient()
+	creditCheckConfig := config.GetCreditCheckConfig()
+	app.CreditChek = providers.NewCreditChekClient(creditCheckConfig.BaseURL, creditCheckConfig.PublicKey)
 
 	kycProviders := map[string]kyc.Provider{
 		"indonesia": app.OneBrick,

@@ -28,3 +28,10 @@ func GetOneBrickConfig() OneBrickConfig {
 		ClientSecret: viper.GetString("onebrick.client-secret"),
 	}
 }
+
+func GetCreditCheckConfig() CreditCheckConfig {
+	return CreditCheckConfig{
+		BaseURL:   viper.GetString("creditcheck.base-url"),
+		PublicKey: viper.GetString("creditcheck.public_key"),
+	}
+}
