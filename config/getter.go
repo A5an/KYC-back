@@ -35,3 +35,10 @@ func GetCreditCheckConfig() CreditCheckConfig {
 		PublicKey: viper.GetString("creditcheck.public_key"),
 	}
 }
+
+func GetResendConfig() ResendConfig {
+	return ResendConfig{
+		ApiKey:    viper.GetString("resend.api-key"),
+		EmailFrom: viper.GetString("resend.email-from"),
+	}
+}

@@ -20,3 +20,7 @@ onebrick:
 creditcheck:
   base-url: https://api.creditchek.africa/v1
   public_key: "JCVJ2sQzscrc76v9v6GDXc237HO1EDycroZiyUfMW7qw+a3/DU16JoCdcky0S9Sm"
+
+resend:
+  api-key: "re_2c4oMT9c_2i3FMR8kcF5nGn4HeBvsmfmK"
+  email-from: "Sinbad <kyc@sinbadhq.com>"

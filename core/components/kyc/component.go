@@ -11,11 +11,12 @@ import (
 	"github.com/Sinbad-HQ/kyc/core/components/kyc/models"
 	"github.com/Sinbad-HQ/kyc/core/components/product"
 	"github.com/Sinbad-HQ/kyc/core/components/usersession"
+	"github.com/Sinbad-HQ/kyc/notifier"
 )
 
 const (
 	QueStatus      = "que"
-	AprovedStatus  = "approved"
+	ApprovedStatus = "approved"
 	RejectedStatus = "rejected"
 )
 
@@ -101,6 +102,28 @@ func (c *component) UpdateStatusByID(ctx context.Context, kycID string, status s
 		return err
 	}
 	kyc.Status = strings.ToLower(status)
+
+	product, err := c.productComponent.GetByID(ctx, kyc.ProductID, authCtx.ProviderID)
+	if err != nil {
+		return err
+	}
+
+	var body string
+	switch kyc.Status {
+	case ApprovedStatus:
+		body = "approved"
+	case RejectedStatus:
+		body = "rejected"
+	}
+
+	if err := notifier.SendEmailNotification(
+		[]string{kyc.Email},
+		fmt.Sprintf("KYC Check - %s", product.Name),
+		body,
+		true,
+	); err != nil {
+		return err
+	}
 
 	return c.repo.UpdateByID(ctx, kyc)
 }

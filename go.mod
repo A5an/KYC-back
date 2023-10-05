@@ -5,12 +5,12 @@ go 1.21.0
 require (
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.16.2
-	github.com/google/martian v2.1.0+incompatible
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.7.4
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.2
 	github.com/nedpals/supabase-go v0.3.0
+	github.com/resendlabs/resend-go v1.7.0
 	github.com/rs/cors v1.10.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
