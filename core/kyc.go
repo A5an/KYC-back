@@ -15,12 +15,13 @@ import (
 )
 
 type CreateKycRequest struct {
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Nationality string `json:"nationality"`
-	Address     string `json:"address"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phone_number"`
+	FirstName          string `json:"first_name"`
+	LastName           string `json:"last_name"`
+	Nationality        string `json:"nationality"`
+	Address            string `json:"address"`
+	Email              string `json:"email"`
+	PhoneNumber        string `json:"phone_number"`
+	DataSharingConsent bool   `json:"data_sharing_consent"`
 
 	// bvn country specific
 	BVN        string `json:"bvn"`
@@ -42,6 +43,12 @@ func (c CreateKycRequest) Validate() error {
 		validation.Field(&c.Email, validation.Required),
 		validation.Field(&c.PhoneNumber, validation.Required),
 		validation.Field(&c.ProviderID, validation.Required),
+		validation.Field(&c.DataSharingConsent, validation.By(func(value interface{}) error {
+			if !value.(bool) {
+				return errors.New("agreement to data sharing is required")
+			}
+			return nil
+		})),
 		validation.Field(&c.BVN, validation.By(func(value interface{}) error {
 			if bvnRequired && value.(string) == "" {
 				return errors.New("bvn is required for Nigeria")
@@ -82,15 +89,16 @@ func (app *App) CreateKyc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	createdProduct, err := app.KycComponent.Create(r.Context(), &models.Kyc{
-		ID:          reqBody.BVN,
-		ProductID:   mux.Vars(r)["productID"],
-		ProviderID:  reqBody.ProviderID,
-		FirstName:   reqBody.FirstName,
-		LastName:    reqBody.LastName,
-		Nationality: reqBody.Nationality,
-		Email:       reqBody.Email,
-		PhoneNumber: reqBody.PhoneNumber,
-		Address:     reqBody.Address,
+		ID:                 reqBody.BVN,
+		ProductID:          mux.Vars(r)["productID"],
+		ProviderID:         reqBody.ProviderID,
+		FirstName:          reqBody.FirstName,
+		LastName:           reqBody.LastName,
+		Nationality:        reqBody.Nationality,
+		Email:              reqBody.Email,
+		PhoneNumber:        reqBody.PhoneNumber,
+		Address:            reqBody.Address,
+		DataSharingConsent: reqBody.DataSharingConsent,
 	})
 	if err != nil {
 		app.HandleAPIError(
