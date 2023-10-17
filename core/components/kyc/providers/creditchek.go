@@ -29,7 +29,7 @@ func NewCreditChekClient(baseURL string, publicKey string) *CreditChekClient {
 	}
 }
 
-func (c *CreditChekClient) CreateLink(_ string) (string, error) {
+func (c *CreditChekClient) CreateLink(_, _, _ string) (string, error) {
 	return "https://app.creditchek.africa/customer/onboarding?type=short&appId=5293878414&appLink=eFd1ZNdJda&app_id=64aac9d453a97b63508946e7&status=true", nil
 }
 

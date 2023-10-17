@@ -138,7 +138,7 @@ func (c *OneBrickClient) fetchPublicAccessToken() (string, error) {
 	return tokenResponse.Data.AccessToken, nil
 }
 
-func (c *OneBrickClient) CreateLink(kycID string) (string, error) {
+func (c *OneBrickClient) CreateLink(kycID string, _, _ string) (string, error) {
 	token, err := c.fetchPublicAccessToken()
 	if err != nil {
 		return "", err
