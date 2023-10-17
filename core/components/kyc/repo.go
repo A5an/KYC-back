@@ -19,9 +19,9 @@ type Repo interface {
 }
 
 const (
-	createKyc = `INSERT INTO products_kyc (id, product_id, provider_id, first_name, last_name,link, status, nationality, email, phone_number, address, data_sharing_consent) 
+	createKyc = `INSERT INTO products_kyc (id, product_id, provider_id, first_name, last_name, general_verification_link, status, nationality, email, phone_number, address, data_sharing_consent) 
 VALUES(:id, :product_id, :provider_id, :first_name, :last_name, :link, :status, :nationality, :email, :phone_number, :address, :data_sharing_consent)
-RETURNING id, product_id, provider_id, first_name, last_name,link, status, nationality, email, phone_number, address, data_sharing_consent`
+RETURNING id, product_id, provider_id, first_name, last_name, general_verification_link, status, nationality, email, phone_number, address, data_sharing_consent`
 
 	selectByProductIDAndProviderID = `SELECT * FROM products_kyc WHERE provider_id = $1 AND product_id = $2`
 	selectByIDAndProviderID        = `SELECT * FROM products_kyc WHERE id = $1 AND provider_id = $2`

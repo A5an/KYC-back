@@ -7,10 +7,11 @@ import (
 type Kyc struct {
 	// TODO: custom type later to cover null/nil type conversion
 	// embedded tables for proto-type only
-	ID         string  `json:"id"`
-	Link       *string `json:"link"`
-	ProductID  string  `json:"product_id"`
-	ProviderID string  `json:"provider_id"`
+	ID                      string  `json:"id"`
+	GeneralVerificationLink *string `json:"general_verification_link"`
+	//PassportVerificationLink *string `json:"passport_verification_link"`
+	ProductID  string `json:"product_id"`
+	ProviderID string `json:"provider_id"`
 
 	// Embed personal details in the same table for prototype
 	FirstName          string `json:"first_name"`
