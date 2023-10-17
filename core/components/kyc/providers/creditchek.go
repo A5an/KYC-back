@@ -157,9 +157,9 @@ func (c *CreditChekClient) GetUserInfoFromCallback(req *http.Request) (models.Us
 		}
 
 		if incomeTransaction.Success {
-			userInfo.AccountBalance = incomeTransaction.Balance
-			userInfo.IDType = incomeTransaction.Bvn
-			userInfo.BankAccountNumber = incomeTransaction.AccountNumber
+			userInfo.AccountBalance = &incomeTransaction.Balance
+			userInfo.IDType = &incomeTransaction.Bvn
+			userInfo.BankAccountNumber = &incomeTransaction.AccountNumber
 			userInfo.KycID = incomeTransaction.Bvn
 		}
 	case pdfUploadedEvent:
@@ -180,11 +180,11 @@ func (c *CreditChekClient) GetUserInfoFromCallback(req *http.Request) (models.Us
 				log.Printf("failed to parse income insight data for user: %s error: %v\n", pdfUploadedEvent.Bvn, err)
 			}
 
-			userInfo.IDType = pdfUploadedEvent.Bvn
+			userInfo.IDType = &pdfUploadedEvent.Bvn
 			userInfo.KycID = pdfUploadedEvent.Bvn
-			userInfo.BankAccountNumber = pdfUploadedEvent.AccountNumber
-			userInfo.ProviderResponse = buf
-			userInfo.AverageSalary = avgMonthlyIncome
+			userInfo.BankAccountNumber = &pdfUploadedEvent.AccountNumber
+			userInfo.ProviderResponse = &buf
+			userInfo.AverageSalary = &avgMonthlyIncome
 		}
 
 	}

@@ -42,17 +42,22 @@ type Kyc struct {
 
 type UserInfo struct {
 	// bank details
-	BankAccountNumber string
-	AccountBalance    float64
-	AverageSalary     float64
+	BankAccountNumber *string
+	AccountBalance    *float64
+	AverageSalary     *float64
 
 	// employment details
-	EmploymentStatus bool
+	EmploymentStatus *bool
 
 	// kycprovider response
-	ProviderResponse []byte
+	ProviderResponse *[]byte
+
+	// passport verification
+	PassportStatus *string
+	PassportNumber *string
 
 	// personal details
-	IDType string
-	KycID  string
+	IDType   *string
+	KycID    string
+	ImageURL *string
 }

@@ -223,13 +223,15 @@ func (c *OneBrickClient) GetUserInfoFromCallback(req *http.Request) (models.User
 		log.Printf("fetching average salary for kyc with ID: %s error: %s\n", kycID, err)
 		//return models.UserInfo{}, nil, err
 	}
+	averageSalary = math.Round(averageSalary*100) / 100
+	employmentStatus := averageSalary > 0
 
 	return models.UserInfo{
-		BankAccountNumber: bankAccount,
-		AccountBalance:    accountBalance,
-		AverageSalary:     math.Round(averageSalary*100) / 100,
-		EmploymentStatus:  averageSalary > 0,
-		IDType:            kycID,
+		BankAccountNumber: &bankAccount,
+		AccountBalance:    &accountBalance,
+		AverageSalary:     &averageSalary,
+		EmploymentStatus:  &employmentStatus,
+		IDType:            &kycID,
 		KycID:             kycID,
 	}, nil, nil
 }
