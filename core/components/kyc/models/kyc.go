@@ -7,20 +7,21 @@ import (
 type Kyc struct {
 	// TODO: custom type later to cover null/nil type conversion
 	// embedded tables for proto-type only
-	ID                      string  `json:"id"`
-	GeneralVerificationLink *string `json:"general_verification_link"`
-	//PassportVerificationLink *string `json:"passport_verification_link"`
-	ProductID  string `json:"product_id"`
-	ProviderID string `json:"provider_id"`
+	ID                       string  `json:"id"`
+	GeneralVerificationLink  *string `json:"general_verification_link"`
+	PassportVerificationLink *string `json:"passport_verification_link"`
+	ProductID                string  `json:"product_id"`
+	ProviderID               string  `json:"provider_id"`
 
 	// Embed personal details in the same table for prototype
-	FirstName          string `json:"first_name"`
-	LastName           string `json:"last_name"`
-	Nationality        string `json:"nationality"`
-	Address            string `json:"address"`
-	Email              string `json:"email"`
-	PhoneNumber        string `json:"phone_number"`
-	DataSharingConsent bool   `json:"data_sharing_consent"`
+	FirstName          string  `json:"first_name"`
+	LastName           string  `json:"last_name"`
+	Nationality        string  `json:"nationality"`
+	Address            string  `json:"address"`
+	Email              string  `json:"email"`
+	PhoneNumber        string  `json:"phone_number"`
+	DataSharingConsent bool    `json:"data_sharing_consent"`
+	ImageURL           *string `json:"image_url"`
 
 	// kyc metrics
 	AccountBalance   *float64 `json:"account_balance"` //last 3 months
@@ -28,10 +29,12 @@ type Kyc struct {
 	AverageSalary    *float64 `json:"average_salary"`
 
 	// identity response
-	BankVerificationNumber *string        `json:"bank_verification_number"`
-	IDType                 *string        `json:"id_type"`
-	MobileNumber           *string        `json:"mobile_number"`
-	IdentityResponse       types.JSONText `json:"identity_response"`
+	BankVerificationNumber     *string        `json:"bank_verification_number"`
+	IDType                     *string        `json:"id_type"`
+	MobileNumber               *string        `json:"mobile_number"`
+	IdentityResponse           types.JSONText `json:"identity_response"`
+	PassportNumber             *string        `json:"passport_number"`
+	PassportVerificationStatus *string        `json:"passport_verification_status"`
 
 	Status string `json:"status"`
 

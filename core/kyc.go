@@ -229,3 +229,24 @@ func (app *App) OneBrickCallback(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
+
+func (app *App) IdenfyCallback(w http.ResponseWriter, r *http.Request) {
+	userInfo, _, err := app.Idenfy.GetUserInfoFromCallback(r)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("error while handling callback: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	err = app.KycComponent.UpdateByID(r.Context(), &userInfo)
+	if err != nil {
+		app.HandleAPIError(
+			fmt.Errorf("failed to update kyc: %w", err), http.StatusInternalServerError, w,
+		)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}

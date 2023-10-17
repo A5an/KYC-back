@@ -34,6 +34,7 @@ func (app *App) NewHandler() http.Handler {
 	// kyc_submissions by provider callbacks
 	r.HandleFunc("/creditcheck/callback", app.CreditChekCallback).Methods(http.MethodPost)
 	r.HandleFunc("/onebrick/callback", app.OneBrickCallback).Methods(http.MethodPost)
+	r.HandleFunc("/idenfy/callback", app.IdenfyCallback).Methods(http.MethodPost)
 
 	corsHandler := cors.AllowAll()
 	//corsHandler := cors.New(cors.Options{

@@ -35,6 +35,7 @@ type App struct {
 	// kyc providers for handling callbacks
 	CreditChek kyc.Provider
 	OneBrick   kyc.Provider
+	Idenfy     kyc.Provider
 }
 
 func NewApp() (app *App, err error) {
@@ -64,6 +65,9 @@ func NewApp() (app *App, err error) {
 	sbConfig := config.GetSupabaseConfig()
 	client := supabase.CreateClient(sbConfig.BaseURL, sbConfig.ApiKey)
 
+	idenfyConfig := config.GetIdenfyConfig()
+	app.Idenfy = providers.NewIdenfyClient(idenfyConfig.BaseURL, idenfyConfig.ApiKey, idenfyConfig.ApiSecret)
+
 	oneBrickConfig := config.GetOneBrickConfig()
 	app.OneBrick = providers.NewOneBrickClient(
 		oneBrickConfig.BaseURL,
@@ -82,7 +86,7 @@ func NewApp() (app *App, err error) {
 	// components initialization
 	app.UserSessionComponent = usersession.NewComponent(client)
 	app.ProductComponent = product.NewComponent(app.ProductRepo, app.UserSessionComponent)
-	app.KycComponent = kyc.NewComponent(app.KycRepo, app.ProductComponent, app.UserSessionComponent, kycProviders)
+	app.KycComponent = kyc.NewComponent(app.KycRepo, app.ProductComponent, app.UserSessionComponent, kycProviders, app.Idenfy)
 
 	return app, nil
 }

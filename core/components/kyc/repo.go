@@ -19,9 +19,9 @@ type Repo interface {
 }
 
 const (
-	createKyc = `INSERT INTO products_kyc (id, product_id, provider_id, first_name, last_name, general_verification_link, status, nationality, email, phone_number, address, data_sharing_consent) 
-VALUES(:id, :product_id, :provider_id, :first_name, :last_name, :link, :status, :nationality, :email, :phone_number, :address, :data_sharing_consent)
-RETURNING id, product_id, provider_id, first_name, last_name, general_verification_link, status, nationality, email, phone_number, address, data_sharing_consent`
+	createKyc = `INSERT INTO products_kyc (id, product_id, provider_id, first_name, last_name, general_verification_link, passport_verification_link, status, nationality, email, phone_number, address, data_sharing_consent) 
+VALUES(:id, :product_id, :provider_id, :first_name, :last_name, :general_verification_link, :passport_verification_link, :status, :nationality, :email, :phone_number, :address, :data_sharing_consent)
+RETURNING id, product_id, provider_id, first_name, last_name, general_verification_link, passport_verification_link, status, nationality, email, phone_number, address, data_sharing_consent`
 
 	selectByProductIDAndProviderID = `SELECT * FROM products_kyc WHERE provider_id = $1 AND product_id = $2`
 	selectByIDAndProviderID        = `SELECT * FROM products_kyc WHERE id = $1 AND provider_id = $2`
@@ -36,7 +36,10 @@ RETURNING id, product_id, provider_id, first_name, last_name, general_verificati
         identity_response = :identity_response,
         account_balance_risk_level = :account_balance_risk_level,
         average_salary_risk_level = :average_salary_risk_level,
-        employment_risk_level = :employment_risk_level
+        employment_risk_level = :employment_risk_level,
+        image_url = :image_url,
+        passport_number = :passport_number,
+        passport_verification_status = :passport_verification_status
         WHERE id = :id AND provider_id = :provider_id`
 )
 

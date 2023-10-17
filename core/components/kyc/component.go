@@ -34,21 +34,26 @@ type Component interface {
 }
 
 type Provider interface {
-	CreateLink(kycID string) (string, error)
+	CreateLink(kycID string, firstName string, lastName string) (string, error)
 	GetUserInfoFromCallback(req *http.Request) (models.UserInfo, []byte, error)
 }
 
 type component struct {
 	// mapping provider to country code for prototype (db table)
 	providers            map[string]Provider
+	passportProvider     Provider
 	repo                 Repo
 	productComponent     product.Component
 	userSessionComponent usersession.Component
 }
 
-func NewComponent(repo Repo, productComponent product.Component, userSessionComponent usersession.Component, providers map[string]Provider) *component {
+func NewComponent(repo Repo, productComponent product.Component,
+	userSessionComponent usersession.Component,
+	providers map[string]Provider,
+	passportProvider Provider) *component {
 	return &component{
 		providers:            providers,
+		passportProvider:     passportProvider,
 		repo:                 repo,
 		productComponent:     productComponent,
 		userSessionComponent: userSessionComponent,
@@ -76,11 +81,17 @@ func (c *component) Create(ctx context.Context, kyc *models.Kyc) (*models.Kyc, e
 		return nil, fmt.Errorf("user verification from %s is not current supported", kyc.Nationality)
 	}
 
-	link, err := provider.CreateLink(kyc.ID)
+	generalVerificationLink, err := provider.CreateLink(kyc.ID, kyc.FirstName, kyc.LastName)
 	if err != nil {
 		return nil, err
 	}
-	kyc.Link = &link
+	kyc.GeneralVerificationLink = &generalVerificationLink
+
+	passportVerificationLink, err := c.passportProvider.CreateLink(kyc.ID, kyc.FirstName, kyc.LastName)
+	if err != nil {
+		return nil, err
+	}
+	kyc.PassportVerificationLink = &passportVerificationLink
 
 	return c.repo.Create(ctx, kyc)
 }
@@ -140,34 +151,46 @@ func (c *component) UpdateByID(ctx context.Context, userInfo *models.UserInfo) e
 	}
 
 	if kyc.AccountBalance == nil {
-		kyc.AccountBalance = &userInfo.AccountBalance
+		kyc.AccountBalance = userInfo.AccountBalance
 	}
 	if kyc.AverageSalary == nil {
-		kyc.AverageSalary = &userInfo.AverageSalary
+		kyc.AverageSalary = userInfo.AverageSalary
 	}
 	if kyc.EmploymentStatus == nil {
-		kyc.EmploymentStatus = &userInfo.EmploymentStatus
+		kyc.EmploymentStatus = userInfo.EmploymentStatus
+	}
+	if kyc.PassportVerificationStatus == nil {
+		kyc.PassportVerificationStatus = userInfo.PassportStatus
+	}
+	if kyc.PassportNumber == nil {
+		kyc.PassportNumber = userInfo.PassportNumber
+	}
+	if kyc.ImageURL == nil {
+		kyc.ImageURL = userInfo.ImageURL
 	}
 
 	kyc.AccountBalanceRiskLevel = &HighRiskLevel
-	if userInfo.AccountBalance >= riskParameter.AccountBalance {
+	if userInfo.AccountBalance != nil && *userInfo.AccountBalance >= riskParameter.AccountBalance {
 		kyc.AccountBalanceRiskLevel = &LowRiskLevel
 	}
 
 	kyc.AverageSalaryRiskLevel = &HighRiskLevel
-	if userInfo.AverageSalary >= riskParameter.AverageSalary {
+	if userInfo.AverageSalary != nil && *userInfo.AverageSalary >= riskParameter.AverageSalary {
 		kyc.AverageSalaryRiskLevel = &LowRiskLevel
 	}
 
 	kyc.EmploymentRiskLevel = &LowRiskLevel
 	if riskParameter.EmploymentStatus {
-		if !userInfo.EmploymentStatus {
+		if userInfo.EmploymentStatus != nil && !*userInfo.EmploymentStatus {
 			kyc.EmploymentRiskLevel = &HighRiskLevel
 		}
 	}
 
-	kyc.IdentityResponse = userInfo.ProviderResponse
-	kyc.IDType = &userInfo.IDType
-	kyc.BankVerificationNumber = &userInfo.BankAccountNumber
+	if userInfo.ProviderResponse != nil {
+		kyc.IdentityResponse = *userInfo.ProviderResponse
+	}
+	kyc.IDType = userInfo.IDType
+	kyc.BankVerificationNumber = userInfo.BankAccountNumber
+
 	return c.repo.UpdateByID(ctx, kyc)
 }
