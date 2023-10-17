@@ -23,3 +23,8 @@ creditcheck:
 resend:
   api-key: "re_2c4oMT9c_2i3FMR8kcF5nGn4HeBvsmfmK"
   email-from: "Sinbad <kyc@sinbadhq.com>"
+
+idenfy:
+  base-url: https://ivs.idenfy.com
+  api-key: oh0Uw0syLhe
+  api-secret: XMLhpMZK4iTBKhvh8iKC

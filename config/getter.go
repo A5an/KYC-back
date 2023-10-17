@@ -42,3 +42,11 @@ func GetResendConfig() ResendConfig {
 		EmailFrom: viper.GetString("resend.email-from"),
 	}
 }
+
+func GetIdenfyConfig() IdenfyConfig {
+	return IdenfyConfig{
+		BaseURL:   viper.GetString("idenfy.base-url"),
+		ApiKey:    viper.GetString("idenfy.api-key"),
+		ApiSecret: viper.GetString("idenfy.api-secret"),
+	}
+}
