@@ -1,4 +1,3 @@
-env: DEV
 port: 5435
 db-name: postgres
 db-args: "sslmode=disable"
@@ -6,14 +5,18 @@ db-user: root
 db-password: kyc
 postgres-addr: localhost:5432
 db-migration: true
+
+clerk:
+  api-token: sk_test_5devVMCSJ5qyLMItth6bNPL792gaoVOBZrzfjvInSF
+
 supabase:
   api-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6dHJqcXNkaXF5YWd1cmV2Z292Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTUyODI4OTcsImV4cCI6MjAxMDg1ODg5N30.KgKYJC6CfGJXZOfS_eTa-GhZaBpxoygZy3Ld7ByQKtw"
   base-url: "https://lztrjqsdiqyagurevgov.supabase.co"
 
 onebrick:
   base-url: https://sandbox.onebrick.io/v1
-  client-id: 5500802e-196c-4f32-92a0-d28ceaf99a19
-  client-secret: BUChl8HXmNoqKq5B8ukvv0zu23ulvy
+  client-id: db14faff-0686-4493-8d35-b249bf2c77d6
+  client-secret: tMbKbZwIObdylGm6yYdTA9vLspR9w7
   redirect-url: "https://huge-daily-hog.ngrok-free.app/onebrick/callback"
 
 creditcheck:
@@ -26,5 +29,7 @@ resend:
 
 idenfy:
   base-url: https://ivs.idenfy.com
-  api-key: oh0Uw0syLhe
-  api-secret: XMLhpMZK4iTBKhvh8iKC
+  api-key: voMXIZEjoX8
+  api-secret: pdavE8xRAKfrBmhdxyfr
+
+

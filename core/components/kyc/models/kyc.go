@@ -1,67 +1,82 @@
 package models
 
 import (
-	"github.com/jmoiron/sqlx/types"
+	"gorm.io/datatypes"
+
+	"github.com/Sinbad-HQ/kyc/db/model"
 )
 
-type Kyc struct {
-	// TODO: custom type later to cover null/nil type conversion
-	// embedded tables for proto-type only
-	ID                       string  `json:"id"`
-	GeneralVerificationLink  *string `json:"general_verification_link"`
-	PassportVerificationLink *string `json:"passport_verification_link"`
-	ProductID                string  `json:"product_id"`
-	ProviderID               string  `json:"provider_id"`
-
-	// Embed personal details in the same table for prototype
-	FirstName          string  `json:"first_name"`
-	LastName           string  `json:"last_name"`
-	Nationality        string  `json:"nationality"`
-	Address            string  `json:"address"`
-	Email              string  `json:"email"`
-	PhoneNumber        string  `json:"phone_number"`
-	DataSharingConsent bool    `json:"data_sharing_consent"`
-	ImageURL           *string `json:"image_url"`
-
-	// kyc metrics
-	AccountBalance   *float64 `json:"account_balance"` //last 3 months
-	EmploymentStatus *bool    `json:"employment_status"`
-	AverageSalary    *float64 `json:"average_salary"`
-
-	// identity response
-	BankVerificationNumber     *string        `json:"bank_verification_number"`
-	IDType                     *string        `json:"id_type"`
-	MobileNumber               *string        `json:"mobile_number"`
-	IdentityResponse           types.JSONText `json:"identity_response"`
-	PassportNumber             *string        `json:"passport_number"`
-	PassportVerificationStatus *string        `json:"passport_verification_status"`
-
-	Status string `json:"status"`
-
-	// risk levels embedded
-	AccountBalanceRiskLevel *string `json:"account_balance_risk_level"`
-	AverageSalaryRiskLevel  *string `json:"average_salary_risk_level"`
-	EmploymentRiskLevel     *string `json:"employment_risk_level"`
+type KycSubmission struct {
+	model.Model
+	PackageID      string            `json:"package_id"`
+	Checklist      datatypes.JSONMap `json:"checklist"`
+	Status         string            `json:"status"`
+	UserInfo       UserInfo          `json:"user_info"`
+	PassportInfo   PassportInfo      `json:"passport_info"`
+	EmploymentInfo EmploymentInfo    `json:"employment_info"`
+	BankInfo       BankInfo          `json:"bank_info"`
+	AddressInfo    AddressInfo       `json:"address_info"`
+	OrgID          string            `json:"org_id" gorm:"index"`
 }
 
 type UserInfo struct {
-	// bank details
-	BankAccountNumber *string
-	AccountBalance    *float64
-	AverageSalary     *float64
+	model.Model
+	KycSubmissionID string `json:"kyc_submission_id" gorm:"unique"`
+	FirstName       string `json:"first_name"`
+	LastName        string `json:"last_name"`
+	Nationality     string `json:"nationality"`
+	Address         string `json:"address"`
+	Email           string `json:"email"`
+	PhoneNumber     string `json:"phone_number"`
+	SignatureLink   string `json:"signature_link"`
+	ImageLink       string `json:"image_logo"`
+	IDNumber        string `json:"id_number" gorm:"index"`
+}
 
-	// employment details
-	EmploymentStatus *bool
+type PassportInfo struct {
+	KycSubmissionID   string         `json:"kyc_submission_id" gorm:"unique"`
+	FullName          string         `json:"full_name"`
+	PassportNumber    string         `json:"passport_number"`
+	Status            string         `json:"status"`
+	PassportFrontLink string         `json:"passport_front_link"`
+	PassportFaceLink  string         `json:"passport_face_link"`
+	ProviderResponse  datatypes.JSON `json:"-"`
+}
 
-	// kycprovider response
-	ProviderResponse *[]byte
+type EmploymentInfo struct {
+	KycSubmissionID        string         `json:"kyc_submission_id" gorm:"unique"`
+	EmployerName           string         `json:"employer_name"`
+	AverageSalary          float64        `json:"average_salary"`
+	AverageSalaryRiskLevel string         `json:"average_salary_level"`
+	EmploymentRiskLevel    string         `json:"employment_risk_level"`
+	EmploymentLetterLink   string         `json:"employment_letter_link"`
+	EmploymentStatus       bool           `json:"employment_status"`
+	ProviderResponse       datatypes.JSON `json:"-"`
+}
 
-	// passport verification
-	PassportStatus *string
-	PassportNumber *string
+type BankInfo struct {
+	KycSubmissionID         string         `json:"kyc_submission_id" gorm:"unique"`
+	AccountHolderName       string         `json:"account_holder_name"`
+	BankName                string         `json:"bank_name"`
+	AccountNumber           string         `json:"account_number"`
+	AccountBalance          float64        `json:"account_balance"`
+	AccountBalanceRiskLevel string         `json:"account_balance_risk_level"`
+	BankStatementLink       string         `json:"bank_statement_link"`
+	ProviderResponse        datatypes.JSON `json:"-"`
+}
 
-	// personal details
-	IDType   *string
-	KycID    string
-	ImageURL *string
+type AddressInfo struct {
+	KycSubmissionID string `json:"kyc_submission_id" gorm:"unique"`
+	Address         string `json:"address"`
+	UtilityBillLink string `json:"utility_bill_link"`
+}
+
+type ProviderCallback struct {
+	KycSubmissionID string
+	// for providers with no support for kyc submission id. eg credit check
+	UserIDNumber   string
+	PassportInfo   *PassportInfo
+	EmploymentInfo *EmploymentInfo
+	BankInfo       *BankInfo
+	AddressInfo    *AddressInfo
 }

@@ -130,22 +130,21 @@ func (c *CreditChekClient) getIncomeInsight(borrowerID string) (IncomeInsight, e
 	return incomeInsight, nil
 }
 
-func (c *CreditChekClient) GetUserInfoFromCallback(req *http.Request) (models.UserInfo, []byte, error) {
+func (c *CreditChekClient) GetProviderCallback(req *http.Request) (models.ProviderCallback, error) {
 	var (
-		providerResponse []byte
-		userInfo         models.UserInfo
+		providerCallback models.ProviderCallback
 		callbackEvent    CallbackEvent
 	)
 
 	err := json.NewDecoder(req.Body).Decode(&callbackEvent)
 	if err != nil {
-		return userInfo, nil, err
+		return providerCallback, err
 	}
 	defer req.Body.Close()
 
 	buf, err := json.Marshal(callbackEvent.Data)
 	if err != nil {
-		return userInfo, nil, err
+		return providerCallback, err
 	}
 
 	switch callbackEvent.Event {
@@ -153,20 +152,21 @@ func (c *CreditChekClient) GetUserInfoFromCallback(req *http.Request) (models.Us
 		var incomeTransaction IncomeTransaction
 		err = json.Unmarshal(buf, &incomeTransaction)
 		if err != nil {
-			return userInfo, nil, err
+			return providerCallback, err
 		}
 
-		if incomeTransaction.Success {
-			userInfo.AccountBalance = &incomeTransaction.Balance
-			userInfo.IDType = &incomeTransaction.Bvn
-			userInfo.BankAccountNumber = &incomeTransaction.AccountNumber
-			userInfo.KycID = incomeTransaction.Bvn
+		providerCallback.BankInfo = &models.BankInfo{
+			AccountHolderName: incomeTransaction.AccountName,
+			BankName:          incomeTransaction.BankName,
+			AccountNumber:     incomeTransaction.AccountNumber,
+			AccountBalance:    incomeTransaction.Balance,
 		}
+		providerCallback.UserIDNumber = incomeTransaction.Bvn
 	case pdfUploadedEvent:
 		var pdfUploadedEvent PdfUploadedEvent
 		err = json.Unmarshal(buf, &pdfUploadedEvent)
 		if err != nil {
-			return userInfo, nil, err
+			return providerCallback, err
 		}
 
 		if pdfUploadedEvent.Success {
@@ -180,14 +180,14 @@ func (c *CreditChekClient) GetUserInfoFromCallback(req *http.Request) (models.Us
 				log.Printf("failed to parse income insight data for user: %s error: %v\n", pdfUploadedEvent.Bvn, err)
 			}
 
-			userInfo.IDType = &pdfUploadedEvent.Bvn
-			userInfo.KycID = pdfUploadedEvent.Bvn
-			userInfo.BankAccountNumber = &pdfUploadedEvent.AccountNumber
-			userInfo.ProviderResponse = &buf
-			userInfo.AverageSalary = &avgMonthlyIncome
+			providerCallback.EmploymentInfo = &models.EmploymentInfo{
+				AverageSalary: avgMonthlyIncome,
+			}
+			providerCallback.UserIDNumber = pdfUploadedEvent.Bvn
+
 		}
 
 	}
 
-	return userInfo, providerResponse, nil
+	return providerCallback, nil
 }

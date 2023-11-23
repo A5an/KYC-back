@@ -14,13 +14,6 @@ func GetDatabaseConfig() DatabaseConfig {
 	}
 }
 
-func GetSupabaseConfig() SupabaseConfig {
-	return SupabaseConfig{
-		BaseURL: viper.GetString("supabase.base-url"),
-		ApiKey:  viper.GetString("supabase.api-key"),
-	}
-}
-
 func GetOneBrickConfig() OneBrickConfig {
 	return OneBrickConfig{
 		BaseURL:      viper.GetString("onebrick.base-url"),

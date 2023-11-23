@@ -1,0 +1,606 @@
+openapi: 3.0.1
+info:
+  title: KYC API
+  version: 1.0.0
+paths:
+  /risk-parameters:
+    post:
+      security:
+        - bearerToken: [ ]
+      summary: Create a new risk parameter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                  name:
+                    type: string
+                  account_balance:
+                    type: number
+                    format: float
+                  average_salary:
+                    type: number
+                    format: float
+                  employment_status:
+                    type: boolean
+              required:
+                - name
+                - account_balance
+                - average_salary
+                - employment_status
+      responses:
+        '201':
+          description: Risk parameter created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskParameter'
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get all risk parameters
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RiskParameter'
+  /risk-parameters/{id}:
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get a risk parameter by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskParameter'
+    put:
+      security:
+        - bearerToken: [ ]
+      summary: Update a risk parameter by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                account_balance:
+                  type: number
+                  format: float
+                average_salary:
+                  type: number
+                  format: float
+                employment_status:
+                  type: boolean
+              required:
+                - name
+                - account_balance
+                - average_salary
+                - employment_status
+      responses:
+        '200':
+          description: Package updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskParameter'
+    delete:
+      security:
+        - bearerToken: [ ]
+      summary: Delete a risk parameter by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+  /packages:
+    post:
+      security:
+        - bearerToken: [ ]
+      summary: Create a new package
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                logo_link:
+                  type: string
+                risk_parameter_id:
+                  type: string
+              required:
+                - name
+                - risk_parameter_id
+      responses:
+        '201':
+          description: Package created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get all packages
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
+  /packages/{id}:
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get a package by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+    put:
+      security:
+        - bearerToken: [ ]
+      summary: Update a package by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                logo_link:
+                  type: string
+                risk_parameter_id:
+                  type: string
+              required:
+                - name
+                - risk_parameter_id
+      responses:
+        '200':
+          description: Package updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Package'
+    delete:
+      security:
+        - bearerToken: [ ]
+      summary: Delete a package by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+  /packages/{packageID}/kyc-submissions:
+    post:
+      summary: Create a package kyc submission
+      parameters:
+        - name: packageID
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                nationality:
+                  type: string
+                address:
+                  type: string
+                email:
+                  type: string
+                phone_number:
+                  type: string
+                signature_link:
+                  type: string
+              required:
+                - first_name
+                - last_name
+                - nationality
+                - address
+                - email
+                - phone_number
+                - signature_link
+      responses:
+        '201':
+          description: Package KYC Submission created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycSubmission'
+
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get package kyc submissions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KycSubmission'
+
+  /packages/{packageID}/kyc-submissions/{kycID}:
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get a package kyc submission by ID
+      parameters:
+        - name: packageID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: kycID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycSubmission'
+
+    put:
+      security:
+        - bearerToken: [ ]
+      summary: Update a package kyc submission (now status only)
+      parameters:
+        - name: packageID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: kycID
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+              required:
+                - status
+      responses:
+        '200':
+          description: Successful response
+  /kyc-submissions:
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: Get a organization kyc submissions
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KycSubmission'
+  /members:
+    get:
+      security:
+        - bearerToken: [ ]
+      summary: List organization members
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Member'
+  /add-member:
+    post:
+      security:
+        - bearerToken: [ ]
+      summary: Add Organization member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                role:
+                  type: string
+              required:
+                - email
+                - role
+      responses:
+        '200':
+          description: User added successfully
+  /remove-member:
+    post:
+      security:
+        - bearerToken: [ ]
+      summary: Remove User from Organization members
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+              required:
+                - user_id
+      responses:
+        '200':
+          description: User removed successfully
+
+components:
+  securitySchemes:
+    bearerToken:
+      type: apiKey
+      in: header
+      name: Authorization
+  schemas:
+    RiskParameter:
+      type: object
+      properties:
+        id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        name:
+          type: string
+        account_balance:
+          type: number
+          format: float
+        average_salary:
+          type: number
+          format: float
+        employment_status:
+          type: boolean
+        org_id:
+          type: string
+    Package:
+      type: object
+      properties:
+        id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        logo_url:
+          type: string
+        risk_parameter_id:
+          type: string
+        org_id:
+          type: string
+    KycSubmission:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        package_id:
+          type: string
+          format: uuid
+        checklist:
+          type: object
+          additionalProperties: true
+        status:
+          type: string
+        user_info:
+          $ref: '#/components/schemas/UserInfo'
+        passport_info:
+          $ref: '#/components/schemas/PassportInfo'
+        employment_info:
+          $ref: '#/components/schemas/EmploymentInfo'
+        bank_info:
+          $ref: '#/components/schemas/BankInfo'
+        address_info:
+          $ref: "#/components/schemas/AddressInfo"
+        org_id:
+          type: string
+    UserInfo:
+      type: object
+      properties:
+        kyc_submission_id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+        last_name:
+          type: string
+        nationality:
+          type: string
+        address:
+          type: string
+        email:
+          type: string
+        phone_number:
+          type: string
+        signature_link:
+          type: string
+        image_logo:
+          type: string
+
+    PassportInfo:
+      type: object
+      properties:
+        kyc_submission_id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        passport_number:
+          type: string
+        status:
+          type: string
+        passport_front_link:
+          type: string
+        passport_face_link:
+          type: string
+        provider_response:
+          type: object
+          additionalProperties: true
+
+    EmploymentInfo:
+      type: object
+      properties:
+        kyc_submission_id:
+          type: string
+          format: uuid
+        average_salary:
+          type: number
+          format: float
+        employment_risk_level:
+          type: string
+        employment_letter_link:
+          type: string
+        provider_response:
+          type: object
+          additionalProperties: true
+
+    BankInfo:
+      type: object
+      properties:
+        kyc_submission_id:
+          type: string
+        account_holder_name:
+          type: string
+        bank_name:
+          type: string
+        account_number:
+          type: string
+        account_balance:
+          type: number
+          format: float
+        account_balance_risk_level:
+          type: string
+        bank_statement_link:
+          type: string
+        provider_response:
+          type: object
+          additionalProperties: true
+
+    AddressInfo:
+     type: object
+     properties:
+       kyc_submission_id:
+         type: string
+       address:
+          type: string
+       utility_bill_link:
+         type: string
+
+    Member:
+      type: object
+      properties:
+        name:
+          type: string
+        profile_image:
+          type: string
+        email:
+            type: string
+        user_id:
+          type: string
+        role:
+          type: string
+        last_active:
+          type: string
+          format: date-time

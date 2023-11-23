@@ -18,4 +18,5 @@ func (cfg *DatabaseConfig) URL() string {
 		"postgres://%s:%s@%s?dbname=%s&%s",
 		cfg.User, cfg.Password, cfg.Address, cfg.DbName, cfg.DbArgs,
 	)
+
 }

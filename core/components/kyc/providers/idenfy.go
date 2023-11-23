@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -25,10 +26,11 @@ func NewIdenfyClient(baseURL string, apiKey string, apiSecret string) *IdenfyCli
 }
 
 type CreateVerificationSession struct {
-	ClientID  string   `json:"clientId"`
-	FirstName string   `json:"firstName,omitempty"`
-	LastName  string   `json:"lastName,omitempty"`
-	Documents []string `json:"documents"`
+	ClientID    string   `json:"clientId"`
+	FirstName   string   `json:"firstName,omitempty"`
+	LastName    string   `json:"lastName,omitempty"`
+	Documents   []string `json:"documents"`
+	UtilityBill bool     `json:"utilityBill"`
 }
 
 type VerificationSession struct {
@@ -65,6 +67,7 @@ type VerificationCallback struct {
 		ManuallyDataChanged bool   `json:"manuallyDataChanged"`
 		FullName            string `json:"fullName"`
 		SelectedCountry     string `json:"selectedCountry"`
+		ManualAddress       string `json:"manualAddress"`
 	} `json:"data"`
 	FileUrls struct {
 		Face        string `json:"FACE"`
@@ -80,10 +83,11 @@ type VerificationCallback struct {
 
 func (c *IdenfyClient) CreateLink(kycID string, firstName string, lastName string) (string, error) {
 	payload, err := json.Marshal(CreateVerificationSession{
-		ClientID:  kycID,
-		FirstName: firstName,
-		LastName:  lastName,
-		Documents: []string{"PASSPORT"},
+		ClientID:    kycID,
+		FirstName:   firstName,
+		LastName:    lastName,
+		Documents:   []string{"PASSPORT"},
+		UtilityBill: true,
 	})
 	if err != nil {
 		return "", err
@@ -102,7 +106,12 @@ func (c *IdenfyClient) CreateLink(kycID string, firstName string, lastName strin
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		return "", fmt.Errorf("failed to create new Idenfy verification session: status code %d", resp.StatusCode)
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+
+		return "", fmt.Errorf("failed to create new Idenfy verification session: status code %d:%s", resp.StatusCode, string(body))
 	}
 
 	var verificationSession VerificationSession
@@ -113,11 +122,11 @@ func (c *IdenfyClient) CreateLink(kycID string, firstName string, lastName strin
 	return fmt.Sprintf("%s/api/v2/redirect?authToken=%s", c.baseURL, verificationSession.AuthToken), nil
 }
 
-func (c *IdenfyClient) GetUserInfoFromCallback(req *http.Request) (models.UserInfo, []byte, error) {
+func (c *IdenfyClient) GetProviderCallback(req *http.Request) (models.ProviderCallback, error) {
 	var resp VerificationCallback
 	err := json.NewDecoder(req.Body).Decode(&resp)
 	if err != nil {
-		return models.UserInfo{}, nil, err
+		return models.ProviderCallback{}, err
 	}
 
 	status := resp.Status.Overall
@@ -132,11 +141,19 @@ func (c *IdenfyClient) GetUserInfoFromCallback(req *http.Request) (models.UserIn
 		}
 	}
 
-	userInfo := models.UserInfo{
-		PassportStatus: &status,
-		PassportNumber: &resp.Data.DocNumber,
-		KycID:          resp.ClientID,
-		ImageURL:       &resp.FileUrls.Face,
-	}
-	return userInfo, nil, nil
+	return models.ProviderCallback{
+		PassportInfo: &models.PassportInfo{
+			KycSubmissionID:   resp.ClientID,
+			FullName:          resp.Data.FullName,
+			PassportNumber:    resp.Data.DocNumber,
+			Status:            status,
+			PassportFrontLink: resp.FileUrls.Front,
+			PassportFaceLink:  resp.FileUrls.Face,
+		},
+		AddressInfo: &models.AddressInfo{
+			KycSubmissionID: resp.ClientID,
+			Address:         resp.Data.ManualAddress,
+			UtilityBillLink: resp.FileUrls.UtilityBill,
+		},
+	}, nil
 }

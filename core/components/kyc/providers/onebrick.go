@@ -161,24 +161,28 @@ func (c *OneBrickClient) getUserAccountInformation(userAccessToken string) (Acco
 	return accInfo, nil
 }
 
-func (c *OneBrickClient) getUserAverageSalary(userAccessToken string) (float64, error) {
+func (c *OneBrickClient) getEmploymentInfo(userAccessToken string) (employerName string, averageIncome float64, err error) {
 	var incomeInfo IncomeInformation
-	err := request(c.baseURL, "income/salary/", "GET", "Bearer "+userAccessToken, "application/json", &incomeInfo)
+	err = request(c.baseURL, "income/salary/", "GET", "Bearer "+userAccessToken, "application/json", &incomeInfo)
 	if err != nil {
-		return 0, err
+		return employerName, averageIncome, err
 	}
 
 	var totalSalary float64
 	for _, income := range incomeInfo.Data {
 		salary, err := strconv.ParseFloat(income.Salary, 64)
 		if err != nil {
-			return 0, err
+			return employerName, averageIncome, err
+		}
+
+		if income.CompanyName != "" {
+			employerName = income.CompanyName
 		}
 
 		totalSalary += salary
 	}
 
-	return totalSalary / float64(len(incomeInfo.Data)), nil
+	return employerName, totalSalary / float64(len(incomeInfo.Data)), nil
 }
 
 func (c *OneBrickClient) parseCallbackResponse(req *http.Request) ([]CallbackResponse, error) {
@@ -190,48 +194,54 @@ func (c *OneBrickClient) parseCallbackResponse(req *http.Request) ([]CallbackRes
 	return resp, nil
 }
 
-func (c *OneBrickClient) GetUserInfoFromCallback(req *http.Request) (models.UserInfo, []byte, error) {
+func (c *OneBrickClient) GetProviderCallback(req *http.Request) (models.ProviderCallback, error) {
 	resp, err := c.parseCallbackResponse(req)
 	if err != nil {
-		return models.UserInfo{}, nil, err
+		return models.ProviderCallback{}, err
 	}
 
 	if len(resp) == 0 {
-		return models.UserInfo{}, nil, nil
+		return models.ProviderCallback{}, nil
 	}
 
 	var (
-		bankAccount     string
-		accountBalance  float64
-		kycID           = resp[0].UserID
+		bankInfo        *models.BankInfo
+		kycSubmissionID = resp[0].UserID
 		userAccessToken = resp[0].AccessToken
 	)
 
 	accountInfo, err := c.getUserAccountInformation(userAccessToken)
 	if err != nil {
-		log.Printf("fetching account information for kyc with ID: %s error: %s\n", kycID, err)
-		//return models.UserInfo{}, nil, err
+		log.Printf("fetching account information for kyc with ID: %s error: %s\n", kycSubmissionID, err)
+		//return models.ProviderInfo{}, nil, err
 	}
 
 	if len(accountInfo.Data) > 0 {
-		accountBalance = accountInfo.Data[0].Balances.Current
-		bankAccount = accountInfo.Data[0].AccountNumber
+		data := accountInfo.Data[0]
+		bankInfo = &models.BankInfo{
+			KycSubmissionID:   kycSubmissionID,
+			AccountHolderName: data.AccountHolder,
+			AccountNumber:     data.AccountNumber,
+			AccountBalance:    data.Balances.Current,
+		}
 	}
 
-	averageSalary, err := c.getUserAverageSalary(userAccessToken)
+	employerName, averageSalary, err := c.getEmploymentInfo(userAccessToken)
 	if err != nil {
-		log.Printf("fetching average salary for kyc with ID: %s error: %s\n", kycID, err)
-		//return models.UserInfo{}, nil, err
+		log.Printf("fetching average salary for kyc with ID: %s error: %s\n", kycSubmissionID, err)
 	}
 	averageSalary = math.Round(averageSalary*100) / 100
-	employmentStatus := averageSalary > 0
 
-	return models.UserInfo{
-		BankAccountNumber: &bankAccount,
-		AccountBalance:    &accountBalance,
-		AverageSalary:     &averageSalary,
-		EmploymentStatus:  &employmentStatus,
-		IDType:            &kycID,
-		KycID:             kycID,
-	}, nil, nil
+	employmentInfo := models.EmploymentInfo{
+		KycSubmissionID:  kycSubmissionID,
+		EmployerName:     employerName,
+		AverageSalary:    averageSalary,
+		EmploymentStatus: averageSalary > 0,
+	}
+
+	return models.ProviderCallback{
+		KycSubmissionID: kycSubmissionID,
+		EmploymentInfo:  &employmentInfo,
+		BankInfo:        bankInfo,
+	}, nil
 }
