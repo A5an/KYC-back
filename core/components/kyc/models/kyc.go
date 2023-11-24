@@ -34,13 +34,21 @@ type UserInfo struct {
 }
 
 type PassportInfo struct {
-	KycSubmissionID   string         `json:"kyc_submission_id" gorm:"unique"`
-	FullName          string         `json:"full_name"`
-	PassportNumber    string         `json:"passport_number"`
-	Status            string         `json:"status"`
-	PassportFrontLink string         `json:"passport_front_link"`
-	PassportFaceLink  string         `json:"passport_face_link"`
-	ProviderResponse  datatypes.JSON `json:"-"`
+	KycSubmissionID   string `json:"kyc_submission_id" gorm:"unique"`
+	FullName          string `json:"full_name"`
+	PassportNumber    string `json:"passport_number"`
+	Status            string `json:"status"`
+	Sex               string `json:"sex"`
+	Nationality       string `json:"nationality"`
+	DateOfBirth       string `json:"date_of_birth"`
+	PlaceOfBirth      string `json:"place_of_birth"`
+	Authority         string `json:"authority"`
+	IssuedDate        string `json:"issued_date"`
+	ExpiryDate        string `json:"expiry_date"`
+	AgeEstimate       string `json:"age_estimate"`
+	FaceMatch         bool   `json:"face_match"`
+	PassportFrontLink string `json:"passport_front_link"`
+	PassportFaceLink  string `json:"passport_face_link"`
 }
 
 type EmploymentInfo struct {

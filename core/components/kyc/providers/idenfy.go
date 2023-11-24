@@ -64,10 +64,16 @@ type VerificationCallback struct {
 		DocExpiry           string `json:"docExpiry"`
 		DocNationality      string `json:"docNationality"`
 		DocIssuingCountry   string `json:"docIssuingCountry"`
+		DocDob              string `json:"docDob"`
+		DocDateOfIssue      string `json:"docDateOfIssue"`
+		DocSex              string `json:"docSex"`
+		BirthPlace          string `json:"birthPlace"`
+		AgeEstimate         string `json:"ageEstimate"`
+		Authority           string `json:"authority"`
 		ManuallyDataChanged bool   `json:"manuallyDataChanged"`
 		FullName            string `json:"fullName"`
 		SelectedCountry     string `json:"selectedCountry"`
-		ManualAddress       string `json:"manualAddress"`
+		Address             string `json:"address"`
 	} `json:"data"`
 	FileUrls struct {
 		Face        string `json:"FACE"`
@@ -141,18 +147,32 @@ func (c *IdenfyClient) GetProviderCallback(req *http.Request) (models.ProviderCa
 		}
 	}
 
+	var faceMatch bool
+	if resp.Status.AutoFace == "FACE_MATCH" {
+		faceMatch = true
+	}
+
 	return models.ProviderCallback{
 		PassportInfo: &models.PassportInfo{
 			KycSubmissionID:   resp.ClientID,
 			FullName:          resp.Data.FullName,
 			PassportNumber:    resp.Data.DocNumber,
 			Status:            status,
+			Sex:               resp.Data.DocSex,
+			Nationality:       resp.Data.DocNationality,
+			DateOfBirth:       resp.Data.DocDob,
+			PlaceOfBirth:      resp.Data.BirthPlace,
+			Authority:         resp.Data.Authority,
+			IssuedDate:        resp.Data.DocDateOfIssue,
+			ExpiryDate:        resp.Data.DocExpiry,
+			AgeEstimate:       resp.Data.AgeEstimate,
+			FaceMatch:         faceMatch,
 			PassportFrontLink: resp.FileUrls.Front,
 			PassportFaceLink:  resp.FileUrls.Face,
 		},
 		AddressInfo: &models.AddressInfo{
 			KycSubmissionID: resp.ClientID,
-			Address:         resp.Data.ManualAddress,
+			Address:         resp.Data.Address,
 			UtilityBillLink: resp.FileUrls.UtilityBill,
 		},
 	}, nil
