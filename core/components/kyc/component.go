@@ -168,11 +168,6 @@ func (c *component) createVerificationLinks(kyc *models.KycSubmission) error {
 		if !ok {
 			return fmt.Errorf("no income verfication provider available for %s", kyc.UserInfo.Nationality)
 		}
-		id, err := uuid.NewRandom()
-		if err != nil {
-			return err
-		}
-		kyc.ID = id.String()
 
 		verificationLink, err := incomeProvider.CreateLink(kyc.ID, kyc.UserInfo.FirstName, kyc.UserInfo.LastName)
 		if err != nil {
