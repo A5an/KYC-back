@@ -21,6 +21,7 @@ var registeredModels = []interface{}{
 	&kycModels.PassportInfo{},
 	&kycModels.EmploymentInfo{},
 	&kycModels.BankInfo{},
+	&kycModels.AddressInfo{},
 }
 
 // Connect establishes a connection to the database using the provided database configuration.
