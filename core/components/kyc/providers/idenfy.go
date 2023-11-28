@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Sinbad-HQ/kyc/core"
 	"github.com/Sinbad-HQ/kyc/core/components/kyc/models"
 )
 
@@ -152,6 +153,27 @@ func (c *IdenfyClient) GetProviderCallback(req *http.Request) (models.ProviderCa
 		faceMatch = true
 	}
 
+	var passportFrontUrl string
+	fileLink, err := core.UploadFile(resp.ClientID+"-passport-front", resp.FileUrls.Front)
+	if err != nil {
+		passportFrontUrl = resp.FileUrls.Front
+	}
+	passportFrontUrl = fileLink
+
+	var passportFaceUrl string
+	fileLink, err = core.UploadFile(resp.ClientID+"-passport-face", resp.FileUrls.Face)
+	if err != nil {
+		passportFaceUrl = resp.FileUrls.Face
+	}
+	passportFaceUrl = fileLink
+
+	var utilityBillUrl string
+	fileLink, err = core.UploadFile(resp.ClientID+"-utility-bill", resp.FileUrls.UtilityBill)
+	if err != nil {
+		utilityBillUrl = resp.FileUrls.UtilityBill
+	}
+	utilityBillUrl = fileLink
+
 	return models.ProviderCallback{
 		PassportInfo: &models.PassportInfo{
 			KycSubmissionID:   resp.ClientID,
@@ -167,13 +189,13 @@ func (c *IdenfyClient) GetProviderCallback(req *http.Request) (models.ProviderCa
 			ExpiryDate:        resp.Data.DocExpiry,
 			AgeEstimate:       resp.Data.AgeEstimate,
 			FaceMatch:         faceMatch,
-			PassportFrontLink: resp.FileUrls.Front,
-			PassportFaceLink:  resp.FileUrls.Face,
+			PassportFrontLink: passportFrontUrl,
+			PassportFaceLink:  passportFaceUrl,
 		},
 		AddressInfo: &models.AddressInfo{
 			KycSubmissionID: resp.ClientID,
 			Address:         resp.Data.Address,
-			UtilityBillLink: resp.FileUrls.UtilityBill,
+			UtilityBillLink: utilityBillUrl,
 		},
 	}, nil
 }

@@ -11,6 +11,7 @@ require (
 	github.com/rs/cors v1.10.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
+	github.com/supabase-community/storage-go v0.7.0
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5

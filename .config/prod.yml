@@ -12,6 +12,7 @@ clerk:
 supabase:
   api-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6dHJqcXNkaXF5YWd1cmV2Z292Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTUyODI4OTcsImV4cCI6MjAxMDg1ODg5N30.KgKYJC6CfGJXZOfS_eTa-GhZaBpxoygZy3Ld7ByQKtw"
   base-url: "https://lztrjqsdiqyagurevgov.supabase.co"
+  bucket: kyc
 
 onebrick:
   base-url: https://sandbox.onebrick.io/v1
