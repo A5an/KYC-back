@@ -69,11 +69,9 @@ func (c *component) Create(ctx context.Context, kyc *models.KycSubmission) (*mod
 	nationality := strings.ToLower(kyc.UserInfo.Nationality)
 	kyc.UserInfo.Nationality = nationality
 
-	if nationality == Nigeria {
-		hasSubmissionInQueue := c.repo.HasUserSubmissionInQueue(ctx, kyc.UserInfo.IDNumber)
-		if hasSubmissionInQueue {
-			return nil, errors.New("there's a submission in the queue. Please complete it before opening a new one")
-		}
+	hasSubmissionInQueue := c.repo.HasUserSubmissionInQueue(ctx, kyc.UserInfo.IDNumber, kyc.UserInfo.Email)
+	if hasSubmissionInQueue {
+		return nil, errors.New("there's a submission in the queue. Please complete it before opening a new one")
 	}
 
 	if err := c.createVerificationLinks(kyc); err != nil {

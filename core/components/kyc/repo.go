@@ -22,7 +22,7 @@ type Repo interface {
 	GetByID(ctx context.Context, id string, productID string, orgID string) (*models.KycSubmission, error)
 	UpdateByID(ctx context.Context, updatedKycSubmission *models.KycSubmission) (*models.KycSubmission, error)
 	UpdateStatusByID(ctx context.Context, id string, productID string, orgID string, status string) error
-	HasUserSubmissionInQueue(ctx context.Context, idNumber string) bool
+	HasUserSubmissionInQueue(ctx context.Context, idNumber string, email string) bool
 	UpdateByProviderInfo(ctx context.Context, kyc *models.ProviderCallback) error
 }
 
@@ -57,7 +57,9 @@ func (r *repo) GetByProductID(_ context.Context, productID string, orgID string)
 		Preload("KycSubmissions.UserInfo").
 		Preload("KycSubmissions.PassportInfo").
 		Preload("KycSubmissions.EmploymentInfo").
-		Preload("KycSubmissions.BankInfo").First(&product)
+		Preload("KycSubmissions.BankInfo").
+		Preload("KycSubmissions.AddressInfo").
+		First(&product)
 	if err := tx.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []models.KycSubmission{}, nil
@@ -77,7 +79,8 @@ func (r *repo) GetByOrgID(_ context.Context, orgID string) ([]models.KycSubmissi
 		Preload("UserInfo").
 		Preload("PassportInfo").
 		Preload("EmploymentInfo").
-		Preload("BankInfo").Find(&kycSubmissions)
+		Preload("BankInfo").
+		Preload("AddressInfo").Find(&kycSubmissions)
 	if err := tx.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []models.KycSubmission{}, nil
@@ -98,7 +101,8 @@ func (r *repo) GetByID(_ context.Context, id string, productID string, orgID str
 	).Preload("UserInfo").
 		Preload("PassportInfo").
 		Preload("EmploymentInfo").
-		Preload("BankInfo").First(&kyc)
+		Preload("BankInfo").
+		Preload("AddressInfo").First(&kyc)
 	if tx.Error != nil {
 		return nil, fmt.Errorf("kyc submission with id %s not found", id)
 	}
@@ -141,17 +145,32 @@ func (r *repo) UpdateStatusByID(_ context.Context, id string, productID string, 
 
 // HasUserSubmissionInQueue checks if a user with the given ID number has a submission in the queue.
 // Used for Nigeria since the current provider does not support adding kyc submission id for identification.
-func (r *repo) HasUserSubmissionInQueue(_ context.Context, idNumber string) bool {
+func (r *repo) HasUserSubmissionInQueue(_ context.Context, idNumber string, email string) bool {
 	kycSubmission := make([]models.KycSubmission, 0)
-	tx := r.db.Joins("JOIN user_infos ON user_infos.kyc_submission_id = kyc_submissions.id AND user_infos.id_number = ?", idNumber).
-		Where(&models.KycSubmission{Status: QueueStatus}).First(&kycSubmission)
-	if tx.Error != nil {
-		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
-			return false
-		}
+	if idNumber != "" {
+		tx := r.db.Joins("JOIN user_infos ON user_infos.kyc_submission_id = kyc_submissions.id AND user_infos.id_number = ?", idNumber).
+			Where(&models.KycSubmission{Status: QueueStatus}).First(&kycSubmission)
+		if tx.Error != nil {
+			if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+				return false
+			}
 
-		slog.Error("error fetching user submission by id number", "idNumber", idNumber, "error", tx.Error)
-		return true
+			slog.Error("error fetching user submission by id number", "idNumber", idNumber, "error", tx.Error)
+			return true
+		}
+	}
+
+	if email != "" {
+		tx := r.db.Joins("JOIN user_infos ON user_infos.kyc_submission_id = kyc_submissions.id AND user_infos.email = ?", email).
+			Where(&models.KycSubmission{Status: QueueStatus}).First(&kycSubmission)
+		if tx.Error != nil {
+			if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+				return false
+			}
+
+			slog.Error("error fetching user submission by email", "email", email, "error", tx.Error)
+			return true
+		}
 	}
 
 	return len(kycSubmission) > 0
