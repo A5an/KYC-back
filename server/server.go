@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/Sinbad-HQ/kyc/config"
-	"github.com/Sinbad-HQ/kyc/core"
 )
 
 func startHTTPServer() {
@@ -67,13 +66,6 @@ func Run() error {
 	if err := config.ReadConfiguration(); err != nil {
 		return err
 	}
-
-	file, err := core.UploadFile("tests", "https://placebear.com/g/200/200")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(file)
 	startHTTPServer()
 	return nil
 }
