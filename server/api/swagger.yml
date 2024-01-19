@@ -251,8 +251,8 @@ paths:
                   type: string
                 nationality:
                   type: string
-                address:
-                  type: string
+                # address:
+                #   type: string
                 email:
                   type: string
                 phone_number:
