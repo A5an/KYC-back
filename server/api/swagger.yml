@@ -251,8 +251,8 @@ paths:
                   type: string
                 nationality:
                   type: string
-                # address:
-                #   type: string
+                address:
+                  type: string
                 email:
                   type: string
                 phone_number:
@@ -263,7 +263,7 @@ paths:
                 - first_name
                 - last_name
                 - nationality
-                # - address
+                - address
                 - email
                 - phone_number
                 - signature_link
